@@ -2,8 +2,6 @@ package optional
 
 //@see https://github.com/AngusGMorrison/typedd-gophers-talk
 import (
-	"reflect"
-
 	"github.com/zodimo/go-zstd/complete"
 )
 
@@ -41,5 +39,9 @@ func (o *Option[T]) Value() (T, bool) {
 }
 
 func partiallyComplete(maybePartial complete.Complete) bool {
-	return !reflect.ValueOf(maybePartial).IsZero() && !maybePartial.Complete()
+	// Check for incomplete values
+	if maybePartial == nil {
+		return true
+	}
+	return !maybePartial.Complete()
 }

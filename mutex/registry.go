@@ -6,40 +6,69 @@ import (
 	"sync"
 )
 
-var mutexMap = sync.Map{}
+var AlreadyRegisteredError = errors.New("mutex already registered")
+var registry MutexRegistry
 
-type MutexRegistry struct{}
+var _ MutexRegistry = (*mutexRegistry)(nil)
 
-func GetMutexRegistry() MutexRegistry {
-	return MutexRegistry{}
+type mutexRegistry struct {
+	mutexMap sync.Map
 }
 
-func (mr *MutexRegistry) HasMutex(key string) bool {
-	if _, ok := mutexMap.Load(key); ok {
+type MutexRegistry interface {
+	HasMutex(key string) bool
+	GetMutex(key string) optional.Option[CancellableMutex]
+	Register(mutex CancellableMutex) error
+}
+
+func initRegistry() {
+	registry = &mutexRegistry{
+		mutexMap: sync.Map{},
+	}
+}
+
+func init() {
+	initRegistry()
+}
+
+func InitAndGetMutexRegistry() MutexRegistry {
+	initRegistry()
+	return registry
+}
+
+func GetMutexRegistry() MutexRegistry {
+	if registry == nil {
+		return InitAndGetMutexRegistry()
+	}
+	return registry
+}
+
+func (mr *mutexRegistry) HasMutex(key string) bool {
+	if _, ok := mr.mutexMap.Load(key); ok {
 
 		return true
 	}
 	return false
 }
 
-func (mr *MutexRegistry) GetMutex(key string) optional.Option[CancellableMutex] {
-	if mutex, ok := mutexMap.Load(key); ok {
-		cm, ok := mutex.(cancellableMutex)
+func (mr *mutexRegistry) GetMutex(key string) optional.Option[CancellableMutex] {
+	if mutex, ok := mr.mutexMap.Load(key); ok {
+		cm, ok := mutex.(*cancellableMutex)
 		if ok {
-			option, err := optional.Some[CancellableMutex](&cm)
+			option, err := optional.Some[CancellableMutex](cm)
 			if err == nil {
 				return option
 			}
 		}
-		mutexMap.Delete(key)
+		mr.mutexMap.Delete(key)
 	}
 	return optional.None[CancellableMutex]()
 }
 
-func (mr *MutexRegistry) Register(mutex CancellableMutex) error {
+func (mr *mutexRegistry) Register(mutex CancellableMutex) error {
 	if mr.HasMutex(mutex.GetKey()) {
-		return errors.New("mutex already registered")
+		return AlreadyRegisteredError
 	}
-	mutexMap.Store(mutex.GetKey(), mutex)
+	mr.mutexMap.Store(mutex.GetKey(), mutex)
 	return nil
 }
