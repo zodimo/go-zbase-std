@@ -5,23 +5,9 @@ import (
 	"testing"
 )
 
-func TestInitAndGetMutexRegistry(t *testing.T) {
-	// Act: Initialize the registry
-	reg := InitAndGetMutexRegistry()
-
-	// Assert
-	if reg == nil {
-		t.Error("expected a valid MutexRegistry, got nil")
-	}
-
-	if registry != reg {
-		t.Error("expected global registry to match the returned MutexRegistry instance")
-	}
-}
-
 func TestGetMutexRegistry(t *testing.T) {
 	// Arrange: Ensure global initialization
-	InitAndGetMutexRegistry()
+	resetRegistry()
 
 	// Act: Fetch the global registry
 	reg := GetMutexRegistry()
@@ -30,15 +16,12 @@ func TestGetMutexRegistry(t *testing.T) {
 	if reg == nil {
 		t.Error("expected a valid MutexRegistry from GetMutexRegistry, got nil")
 	}
-
-	if registry != reg {
-		t.Error("expected global registry to match the returned MutexRegistry instance")
-	}
 }
 
 func TestMutexRegistry_RegisterAndHasMutex(t *testing.T) {
 	// Arrange
-	reg := InitAndGetMutexRegistry()
+	resetRegistry()
+	reg := GetMutexRegistry()
 	key := "test-mutex"
 	mutex := NewCancellableMutex(key)
 
@@ -66,7 +49,8 @@ func TestMutexRegistry_RegisterAndHasMutex(t *testing.T) {
 
 func TestMutexRegistry_GetMutex(t *testing.T) {
 	// Arrange
-	reg := InitAndGetMutexRegistry()
+	resetRegistry()
+	reg := GetMutexRegistry()
 	key := "test-mutex"
 	mutex := NewCancellableMutex(key)
 
@@ -92,7 +76,8 @@ func TestMutexRegistry_GetMutex(t *testing.T) {
 
 func TestMutexRegistry_GetMutex_NotFound(t *testing.T) {
 	// Arrange
-	reg := InitAndGetMutexRegistry()
+	resetRegistry()
+	reg := GetMutexRegistry()
 	nonExistentKey := "non-existent-key"
 
 	// Act: Try to get a mutex with a key that doesn’t exist
@@ -107,7 +92,8 @@ func TestMutexRegistry_GetMutex_NotFound(t *testing.T) {
 
 func TestMutexRegistry_RegisterAndRetrieveMultipleKeys(t *testing.T) {
 	// Arrange
-	reg := InitAndGetMutexRegistry()
+	resetRegistry()
+	reg := GetMutexRegistry()
 	keys := []string{"mutex-1", "mutex-2", "mutex-3"}
 
 	// Act: Register multiple mutexes

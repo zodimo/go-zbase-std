@@ -4,15 +4,21 @@ import (
 	"errors"
 	"github.com/zodimo/go-zstd/optional"
 	"sync"
+	"sync/atomic"
 )
 
 var AlreadyRegisteredError = errors.New("mutex already registered")
-var registry MutexRegistry
+
+var registry = newAtomicRegistry()
 
 var _ MutexRegistry = (*mutexRegistry)(nil)
 
 type mutexRegistry struct {
 	mutexMap sync.Map
+}
+
+type mutexRegistryHolder struct {
+	rh MutexRegistry
 }
 
 type MutexRegistry interface {
@@ -21,31 +27,30 @@ type MutexRegistry interface {
 	Register(mutex CancellableMutex) error
 }
 
-func initRegistry() {
-	registry = &mutexRegistry{
-		mutexMap: sync.Map{},
-	}
+func resetRegistry() {
+	registry.Store(mutexRegistryHolder{
+		rh: &mutexRegistry{
+			mutexMap: sync.Map{},
+		},
+	})
 }
 
-func init() {
-	initRegistry()
-}
-
-func InitAndGetMutexRegistry() MutexRegistry {
-	initRegistry()
-	return registry
+func newAtomicRegistry() *atomic.Value {
+	v := &atomic.Value{}
+	v.Store(mutexRegistryHolder{
+		rh: &mutexRegistry{
+			mutexMap: sync.Map{},
+		},
+	})
+	return v
 }
 
 func GetMutexRegistry() MutexRegistry {
-	if registry == nil {
-		return InitAndGetMutexRegistry()
-	}
-	return registry
+	return registry.Load().(mutexRegistryHolder).rh
 }
 
 func (mr *mutexRegistry) HasMutex(key string) bool {
 	if _, ok := mr.mutexMap.Load(key); ok {
-
 		return true
 	}
 	return false
@@ -55,7 +60,7 @@ func (mr *mutexRegistry) GetMutex(key string) optional.Option[CancellableMutex] 
 	if mutex, ok := mr.mutexMap.Load(key); ok {
 		cm, ok := mutex.(*cancellableMutex)
 		if ok {
-			option, err := optional.Some[CancellableMutex](cm)
+			option, err := optional.SomeComplete[CancellableMutex](cm)
 			if err == nil {
 				return option
 			}

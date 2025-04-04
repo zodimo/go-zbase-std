@@ -23,7 +23,7 @@ func TestNewCancellableMutex_NewInstance(t *testing.T) {
 
 func TestNewCancellableMutex_ExistingInstance(t *testing.T) {
 	//reset
-	initRegistry()
+	resetRegistry()
 
 	// Arrange
 	key := "test-mutex"
@@ -70,7 +70,7 @@ func TestCancellableMutex_LockAndUnlock(t *testing.T) {
 
 func TestCancellableMutex_LockWithContextCancel(t *testing.T) {
 	//reset
-	initRegistry()
+	resetRegistry()
 
 	// Arrange
 	key := "test-mutex"
@@ -101,7 +101,7 @@ func TestCancellableMutex_LockWithContextCancel(t *testing.T) {
 
 func TestCancellableMutex_MultipleLocks(t *testing.T) {
 	//reset
-	initRegistry()
+	resetRegistry()
 
 	// Arrange
 	key := "test-mutex"

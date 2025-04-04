@@ -31,14 +31,13 @@ func (cm *cancellableMutex) GetKey() string {
 }
 
 func GetOrNewCancellableMutex(key string) CancellableMutex {
-	registry = GetMutexRegistry()
-	optionalRegistry := registry.GetMutex(key)
+	optionalRegistry := GetMutexRegistry().GetMutex(key)
 	maybeMutex, some := optionalRegistry.Value()
 	if some {
 		return maybeMutex.(CancellableMutex)
 	}
 	mutex := NewCancellableMutex(key)
-	_ = registry.Register(mutex)
+	_ = GetMutexRegistry().Register(mutex)
 	return mutex
 }
 func NewCancellableMutex(key string) CancellableMutex {

@@ -38,7 +38,7 @@ func TestSome_ValidValue(t *testing.T) {
 	value := 123
 
 	// Act
-	opt, err := Some(value)
+	opt, err := SomeComplete(value)
 
 	// Assert
 	if err != nil {
@@ -59,7 +59,7 @@ func TestSome_IncompleteValue(t *testing.T) {
 	incomplete := MockComplete{isComplete: false}
 
 	// Act
-	_, err := Some(incomplete)
+	_, err := SomeComplete(incomplete)
 
 	// Assert
 	if err == nil {
@@ -77,7 +77,7 @@ func TestSome_CompleteValue(t *testing.T) {
 	completeValue := MockComplete{isComplete: true}
 
 	// Act
-	opt, err := Some(completeValue)
+	opt, err := SomeComplete(completeValue)
 
 	// Assert
 	if err != nil {
@@ -93,10 +93,10 @@ func TestSome_CompleteValue(t *testing.T) {
 	}
 }
 
-func TestOption_Value(t *testing.T) {
+func TestOption_CompleteValue(t *testing.T) {
 	// Arrange
 	value := "test value"
-	opt, _ := Some(value)
+	opt, _ := SomeComplete(value)
 
 	// Act
 	optValue, some := opt.Value()
