@@ -2,8 +2,9 @@ package optional
 
 //@see https://github.com/AngusGMorrison/typedd-gophers-talk
 import (
-	"github.com/zodimo/go-zstd/complete"
 	"reflect"
+
+	"github.com/zodimo/go-zstd/complete"
 )
 
 // Option represents an optional value.
@@ -15,7 +16,7 @@ type Option[T any] struct {
 }
 
 // None returns an empty, zero-valued for Option[T]. Hence, the zero-value of Option is always valid.
-func None[T complete.Complete]() Option[T] {
+func None[T any]() Option[T] {
 	return Option[T]{}
 }
 
