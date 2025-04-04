@@ -19,10 +19,6 @@ func TestNewCancellableMutex_NewInstance(t *testing.T) {
 		t.Errorf("expected key to be %q, got %q", key, mutex.GetKey())
 	}
 
-	if !mutex.Complete() {
-		t.Errorf("expected mutex to be complete, but it was incomplete")
-	}
-
 }
 
 func TestNewCancellableMutex_ExistingInstance(t *testing.T) {

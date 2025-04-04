@@ -7,8 +7,9 @@ import (
 
 var _ CancellableMutex = (*cancellableMutex)(nil)
 
+var _ complete.Complete = (*cancellableMutex)(nil)
+
 type CancellableMutex interface {
-	complete.Complete
 	Lock(context.Context) error
 	Unlock()
 	GetKey() string
@@ -27,10 +28,6 @@ func (cm *cancellableMutex) IsLocked() bool {
 
 func (cm *cancellableMutex) GetKey() string {
 	return cm.key
-}
-
-func (cm *cancellableMutex) Complete() bool {
-	return cm.key != ""
 }
 
 func GetOrNewCancellableMutex(key string) CancellableMutex {
@@ -66,5 +63,8 @@ func (cm *cancellableMutex) Unlock() {
 		<-cm.lockChannel // Release the lock
 		cm.locked = false
 	}
+}
 
+func (cm *cancellableMutex) Complete() bool {
+	return cm.key != ""
 }
