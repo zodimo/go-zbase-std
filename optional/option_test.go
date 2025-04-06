@@ -33,6 +33,23 @@ func TestNone(t *testing.T) {
 	}
 }
 
+func TestSome(t *testing.T) {
+	// Arrange
+	value := "hello"
+
+	// Act
+	opt := Some(value)
+
+	// Assert
+	optValue, some := opt.Value()
+	if !some {
+		t.Errorf("expected opt to be Some, got None")
+	}
+	if optValue != value {
+		t.Errorf("expected Some value to be %q, got %q", value, optValue)
+	}
+}
+
 func TestSome_ValidValue(t *testing.T) {
 	// Arrange
 	value := 123
@@ -133,6 +150,16 @@ func TestPartiallyComplete_FullyComplete(t *testing.T) {
 	// Assert
 	if result {
 		t.Error("expected partiallyComplete to return false for a complete value, got true")
+	}
+}
+
+func TestPartiallyComplete_Nil(t *testing.T) {
+	// Act
+	result := partiallyComplete(nil)
+
+	// Assert
+	if !result {
+		t.Error("expected partiallyComplete to return true for a nil value, got false")
 	}
 }
 

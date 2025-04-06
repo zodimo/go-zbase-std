@@ -90,6 +90,38 @@ func TestMutexRegistry_GetMutex_NotFound(t *testing.T) {
 	}
 }
 
+func TestMutexRegistry_GetMutex_IncompleteMutex(t *testing.T) {
+	// Arrange
+	resetRegistry()
+	reg := GetMutexRegistry()
+	incompleteKey := "" // Key that makes the mutex incomplete
+	incompleteMutex := NewCancellableMutex(incompleteKey)
+	var mr *mutexRegistry // Declare mr here
+
+	// Manually store the incomplete mutex (bypassing Register which might prevent empty keys)
+	// Note: Direct map manipulation is generally discouraged outside tests.
+	var ok bool
+	if mr, ok = reg.(*mutexRegistry); ok { // Assign mr here
+		mr.mutexMap.Store(incompleteKey, incompleteMutex)
+	} else {
+		t.Fatal("Could not get concrete mutexRegistry type for test setup")
+	}
+
+	// Act: Try to get the incomplete mutex
+	optMutex := reg.GetMutex(incompleteKey)
+
+	// Assert: Should get None because the mutex is incomplete
+	_, some := optMutex.Value()
+	if some {
+		t.Error("expected GetMutex to return None for an incomplete mutex, but got Some")
+	}
+
+	// Assert: The incomplete mutex should have been deleted from the registry
+	if _, ok := mr.mutexMap.Load(incompleteKey); ok {
+		t.Error("expected incomplete mutex to be deleted from registry after GetMutex call")
+	}
+}
+
 func TestMutexRegistry_RegisterAndRetrieveMultipleKeys(t *testing.T) {
 	// Arrange
 	resetRegistry()

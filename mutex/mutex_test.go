@@ -135,3 +135,37 @@ func TestCancellableMutex_MultipleLocks(t *testing.T) {
 	mutex.Unlock() // Cleanup the lock
 
 }
+
+func TestCancellableMutex_IsLocked(t *testing.T) {
+	//reset
+	resetRegistry()
+
+	// Arrange
+	key := "test-islocked-mutex"
+	mutex := NewCancellableMutex(key)
+	ctx := context.Background()
+
+	// Assert initial state (unlocked)
+	if mutex.IsLocked() {
+		t.Error("expected mutex to be initially unlocked")
+	}
+
+	// Act: Lock the mutex
+	err := mutex.Lock(ctx)
+	if err != nil {
+		t.Fatalf("failed to lock mutex: %v", err)
+	}
+
+	// Assert locked state
+	if !mutex.IsLocked() {
+		t.Error("expected mutex to be locked after calling Lock")
+	}
+
+	// Act: Unlock the mutex
+	mutex.Unlock()
+
+	// Assert unlocked state
+	if mutex.IsLocked() {
+		t.Error("expected mutex to be unlocked after calling Unlock")
+	}
+}
