@@ -5,9 +5,10 @@ package mutex
 
 import (
 	"errors"
-	"github.com/zodimo/go-zstd/optional"
 	"sync"
 	"sync/atomic"
+
+	"github.com/zodimo/go-zbase-std/optional"
 )
 
 // AlreadyRegisteredError is returned when attempting to register a mutex

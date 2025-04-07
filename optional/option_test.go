@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/zodimo/go-zstd/complete"
+	"github.com/zodimo/go-zbase-std/complete"
 )
 
 // Mock type for testing Complete interface

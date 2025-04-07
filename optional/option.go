@@ -4,7 +4,7 @@
 package optional
 
 import (
-	"github.com/zodimo/go-zstd/complete"
+	"github.com/zodimo/go-zbase-std/complete"
 )
 
 // Option represents an optional value of a generic type T.
